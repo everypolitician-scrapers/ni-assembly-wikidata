@@ -1,17 +1,22 @@
 #!/bin/env ruby
 # encoding: utf-8
 
+require 'colorize'
+require 'nokogiri'
+require 'pry'
 require 'scraperwiki'
 require 'wikidata/fetcher'
 
-@pages = [
-  'Category:Northern Ireland MLAs 2011–',
-  'Category:Northern Ireland MLAs 2007–11',
-  'Category:Northern Ireland MLAs 2003–07',
-  'Category:Northern Ireland MLAs 1998–2003',
-]
+require 'open-uri/cached'
+OpenURI::Cache.cache_path = '.cache'
 
-@pages.map { |c| WikiData::Category.new(c).wikidata_ids }.flatten.uniq.each do |id|
+def ids_from_claim(claim_str)
+  url = 'https://wdq.wmflabs.org/api?q=claim[39:3272410]'
+  json = JSON.parse(open(url).read, symbolize_names: true)
+  json[:items].map { |id| "Q#{id}" }
+end
+
+ids_from_claim('39:3272410').each do |id|
   data = WikiData::Fetcher.new(id: id).data or next
   ScraperWiki.save_sqlite([:id], data)
 end
