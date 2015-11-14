@@ -6,6 +6,7 @@ require 'nokogiri'
 require 'pry'
 require 'scraperwiki'
 require 'wikidata/fetcher'
+require 'rest-client'
 
 require 'open-uri/cached'
 OpenURI::Cache.cache_path = '.cache'
@@ -23,3 +24,5 @@ ids_from_claim(claim).each do |id|
   data = WikiData::Fetcher.new(id: id).data or next
   ScraperWiki.save_sqlite([:id], data)
 end
+
+warn RestClient.post ENV['MORPH_REBUILDER_URL'], {} if ENV['MORPH_REBUILDER_URL']
