@@ -1,10 +1,12 @@
 #!/bin/env ruby
 # encoding: utf-8
 
+require 'everypolitician'
 require 'wikidata/fetcher'
 
 sparq = 'SELECT ?item WHERE { ?item wdt:P39 wd:Q3272410 . }'
-ids = EveryPolitician::Wikidata.sparql(sparq)
+members = EveryPolitician::Wikidata.sparql(sparq)
+existing = EveryPolitician::Index.new.country("Northern-Ireland").lower_house.popolo.persons.map(&:wikidata).compact
 
-EveryPolitician::Wikidata.scrape_wikidata(ids: ids)
+EveryPolitician::Wikidata.scrape_wikidata(ids: existing | members)
 
